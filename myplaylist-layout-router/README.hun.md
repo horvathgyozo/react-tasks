@@ -3,12 +3,14 @@
 A feladatban komponensekre bontva szerepel egy alkalmazás. Az egyes komponensek egyelőre azonban egymás alatt jelennek meg!
 
 1. Általában egy oldal közös elemei alkotják a layout-ot. Vezess be itt is egy `Layout` komponenst, ami a keret `div`-et és a `Menu`-t tartalmazza. Valahogy így szeretnénk használni:
+
    ```jsx
    <Layout>
      <Home>
      <Playlists>
    </Layout>
    ```
+
 2. Szeretnénk a menüt működőképessé tenni, és az egyes menüpontokra kattintva a megfelelő komponenseket megjeleníteni, azaz az oldalon belül navigálni.
    1. Telepítsd fel ehhez a `react-router` csomagot. [Használd a dokumentációt is!](https://reactrouter.com/start/declarative/installation)
    2. Segítségével oldd meg, hogy az egyes végpontokon a megfelelő komponensek jelenjenek meg. Ehhez a `BrowserRouter`, a `Routes` és a `Route` komponenseket kell használnod. A megoldást rakd az `App` komponensbe. ([Dokumentáció](https://reactrouter.com/start/declarative/routing#configuring-routes))
@@ -25,9 +27,11 @@ A feladatban komponensekre bontva szerepel egy alkalmazás. Az egyes komponensek
       ```
 
 3. A `Playlists` komponens egyelőre beégetve tartalmazza, melyik playlist van kiválasztva. Konstans adat helyett alakítsd át state-é, és egy playlistre kattintással változtassuk meg a kiválasztott playlist-et.
+
 4. Tüntessük fel az URL-ben, hogy a playlists oldalon melyik playlist van kiválasztva: pl. `/playlists/1`!
    1. Használd a router `useParams` hook-ját a paraméter kiolvasásához! Ügyelj arra, hogy ez szövegként érkezik, és még számmá kell alakítanod!
    2. Oldd meg, hogy egy playlist-re kattintva az URL megváltozzon, és onnan olvasd ki a kiválasztott playlist-et! Ehhez alakítsd át a `div`-eket `Link`-ekké!
+
 5. Egészítsd ki a `Playlists` komponenst, hogy a playlist-en belüli trackek megjelenítésével és kiválasztásával!
    1. Jelenítsd meg a kiválasztott playlist-et a `TrackList` komponensben!
    2. Vezess be egy konstans értéket, hogy melyik track van kiválasztva és jelenítsd meg a kiválasztott track-et!
