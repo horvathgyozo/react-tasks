@@ -32,3 +32,16 @@ Practice, homework:
 - [Hangman game](hangman/README.md)
 - [Myplaylist app: adding a playlist](myplaylist-add-playlist/README.md)
 
+## Week 3: Forms, hooks, context
+
+Topics:
+- Forms and form elements
+- Modals
+- Context
+- Custom hooks
+
+Tasks:
+- [Myplaylist app: managing tracks](myplaylist-tracks-semantic-ui/README.md)
+
+Practice, homework:
+- Finish the track management task!

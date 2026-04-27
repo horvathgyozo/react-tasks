@@ -417,3 +417,385 @@ A more advanced example:
   </Route>
 </Routes>
 ```
+
+## Handling Form Elements
+
+### Controlled Form Elements
+
+In React, form elements can be handled in two ways: as controlled and uncontrolled components. In the case of **controlled components**, form element values are stored in React state, and every change is handled through an event handler. This allows React to fully control form values and makes those values easy to access inside the component. Using controlled components is generally recommended because it provides greater control over form fields and simplifies validation and data handling. Key parts:
+- The `value` attribute of an `input` element is bound to a value stored in React state.
+- The `onChange` event handler updates React state with the new form value.
+
+```tsx
+function Component() {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      <p>Input value: {inputValue}</p>
+    </div>
+  );
+}
+```
+
+### Uncontrolled Form Elements
+
+In the case of uncontrolled components, form values are stored in the DOM, and React only accesses those values when needed, for example when submitting a form. This can be simpler in some cases, but it gives less control over form fields. Key parts:
+- The initial value of an `input` can be set with the `defaultValue` attribute.
+- The DOM element of the `input` is connected to a ref created with `useRef` through the `ref` attribute, so its value can be accessed later.
+- The `onSubmit` handler reads the current value of the `input` through the ref when the form is submitted.
+
+```tsx
+function Component() {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (inputRef.current) {
+      console.log("Input value:", inputRef.current.value);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" ref={inputRef} />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### Validation
+
+For validating form elements, you can use built-in HTML5 validation mechanisms such as `required`, `minLength`, `maxLength`, and `pattern`, which can be applied to form controls. These attributes automatically validate form values and prevent form submission if values do not meet the specified conditions.
+
+If you need more control, validation logic can be implemented in event handlers such as `onChange` or `onSubmit`, where you can check input values and display error messages to the user. To show errors, you can use a state variable that stores the error message and render it in JSX.
+
+```tsx
+function Component() {
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
+
+    if (value.length < 5) {
+      setError("Input must be at least 5 characters long.");
+    } else {
+      setError("");
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+}
+```
+
+If you need to handle multiple form fields, it is often useful to store form state in an object where keys are field names and values are current field values. This makes form state management easier, especially with many inputs. In the event handler, you can use dynamic property names to update the correct field in state. You can also store individual validation errors in an object where keys are field names and values are error messages.
+
+```tsx
+function Component() {
+  const [formState, setFormState] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormState(prevState => ({ ...prevState, [name]: value }));
+
+    if (name === "username" && value.length < 5) {
+      setErrors(prevErrors => ({ ...prevErrors, username: "Username must be at least 5 characters long." }));
+    } else if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+      setErrors(prevErrors => ({ ...prevErrors, email: "Invalid email address." }));
+    } else if (name === "password" && value.length < 8) {
+      setErrors(prevErrors => ({ ...prevErrors, password: "Password must be at least 8 characters long." }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, [name]: "" }));
+    }
+  };
+
+  return (
+    <form>
+      <input type="text" name="username" value={formState.username} onChange={handleChange} />
+      {errors.username && <p style={{ color: "red" }}>{errors.username}</p>}
+
+      <input type="email" name="email" value={formState.email} onChange={handleChange} />
+      {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+
+      <input type="password" name="password" value={formState.password} onChange={handleChange} />
+      {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### Validation Libraries
+
+Validation logic can be generalized, so it may be worth using dedicated libraries such as [Formik](https://formik.org/) or [React Hook Form](https://react-hook-form.com/), which make form handling and validation easier in React.
+
+## Custom Hooks
+
+State and logic inside a component can often make the component hard to read, especially when there are multiple state variables and side effects. In these cases, it can be useful to move them into custom hooks. You can simply move data and logic from the original component into a function whose name starts with `use`, and return the required values and functions. The component then uses that custom hook and works with the returned values and functions.
+
+For example, if the original component has a counter, you can create a custom hook called `useCounter` that handles counter state and related operations such as increment, decrement, and reset. Original component:
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+  const reset = () => setCount(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+}
+```
+
+Then you can move the counter logic into a custom hook named `useCounter`, and the component can use this hook:
+
+```tsx
+// Creating a custom useCounter hook
+function useCounter(initialValue: number = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+  const reset = () => setCount(initialValue);
+
+  return { count, increment, decrement, reset };
+}
+
+// Using useCounter in Counter component
+function Counter() {
+  const { count, increment, decrement, reset } = useCounter();
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+}
+```
+
+Custom hooks are very often created to reuse logic. For example, a hook handling online/offline state can observe network status and return whether the browser is online or offline:
+
+```tsx
+function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  return isOnline;
+}
+```
+
+This logic can then be reused across multiple components. It is important to note that in this case, the logic is reused, not the data. That means every component using `useOnlineStatus` creates its own state and does not share a common state.
+
+```tsx
+function Component1() {
+  const isOnline = useOnlineStatus();
+  return <p>Component 1 is {isOnline ? "online" : "offline"}</p>;
+}
+
+function Component2() {
+  const isOnline = useOnlineStatus();
+  return <p>Component 2 is {isOnline ? "online" : "offline"}</p>;
+}
+```
+
+## Context
+
+### Context Basics
+
+React Context is a mechanism that lets you share data across the component tree without passing props through every level. This is especially useful for data required by many components, such as authentication state or theme settings.
+
+In this setup, instead of creating state at the top level and passing it down through props at every level, you create a Context that has a Provider component where shared values are defined. Components that use this Context can then access those values with the `useContext` hook, without receiving them as props.
+
+```tsx
+// Creating a Context
+const ThemeContext = React.createContext({ value: "system" });
+
+// Providing ThemeContext in the component tree
+function App() {
+  const theme = { value: "dark" };
+  return (
+    <ThemeContext.Provider value={theme}>
+      <ChildComponent />
+    </ThemeContext.Provider>
+  );
+}
+
+// Using Context in a component
+function ChildComponent() {
+  const theme = useContext(ThemeContext);
+  return (
+    <div>
+      <p>Current theme: {theme.value}</p>
+    </div>
+  );
+}
+```
+
+### Context Provider Component
+
+The component that provides a Context is often wrapped in a custom component to simplify usage and hide internal details from other components. This component usually returns a Provider and supplies it with the required values.
+
+```tsx
+// Creating a Context
+const ThemeContext = React.createContext({ value: "system" });
+
+// Creating a ThemeProvider component
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = { value: "dark" };
+  return (
+    <ThemeContext.Provider value={theme}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Using ThemeProvider in the component tree
+function App() {
+  return (
+    <ThemeProvider>
+      <ChildComponent />
+    </ThemeProvider>
+  );
+}
+```
+
+### Dynamic Values in Context
+
+Context values can be anything, either static or changing over time. A Context can provide data and logic of arbitrary complexity. Commonly, the provider component prepares the necessary data and helper functions, and only passes the required values to child components through Context.
+
+```tsx
+// Creating a Context
+interface ThemeContextValue {
+  theme: string;
+  toggleTheme: () => void;
+}
+const ThemeContext = React.createContext<ThemeContextValue | null>(null);
+
+// Creating a ThemeProvider component
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState("system");
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Using ThemeProvider in the component tree
+function App() {
+  return (
+    <ThemeProvider>
+      <ChildComponent />
+    </ThemeProvider>
+  );
+}
+
+// Using Context in a component
+function ChildComponent() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("ThemeContext must be used within a ThemeProvider");
+  }
+  const { theme, toggleTheme } = context;
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+}
+```
+
+### Custom Hooks for Context Usage
+
+Context-related logic is often moved into a custom hook to simplify usage and hide internal implementation from other components. Components consuming context can then access the context value through this custom hook, and error handling can also be centralized.
+
+```tsx
+// Creating a useTheme hook
+function useTheme() {
+  const [theme, setTheme] = useState("system");
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
+  return [theme, toggleTheme];
+}
+
+// Creating a ThemeProvider component
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, toggleTheme] = useTheme();
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+/////////////////////////////////////////////
+
+// Creating a useThemeContext hook
+function useThemeContext() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useThemeContext must be used within a ThemeProvider");
+  }
+  return context;
+}
+
+// Using Context in a component with useThemeContext hook
+function ChildComponent() {
+  const { theme, toggleTheme } = useThemeContext();
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+}
+```

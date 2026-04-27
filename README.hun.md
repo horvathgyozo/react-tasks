@@ -418,3 +418,385 @@ Egy összetettebb példa:
   </Route>
 </Routes>
 ```
+
+## Űrlapelemek kezelése
+
+### Kontrollált űrlapelemek
+
+A Reactben a form elemeket kétféleképpen kezelhetjük: kontrollált és nem kontrollált komponensekként. A **kontrollált komponensek** esetén a form elemek értékét a React állapotában tároljuk, és minden változást egy eseménykezelőn keresztül kezelünk. Ez lehetővé teszi, hogy a form elemek értékét teljes mértékben a React irányítsa, és könnyen hozzáférhessünk ezekhez az értékekhez a komponensben. A kontrollált komponensek használata általában ajánlott, mert nagyobb kontrollt biztosít a form elemek felett, és megkönnyíti a validációt és az adatkezelést. Főbb elemei:
+- Az `input` elem `value` attribútuma a React állapotában tárolt értékhez van kötve.
+- Az `onChange` eseménykezelő frissíti a React állapotát a form elem új értékére.
+
+```tsx
+function Component() {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      <p>Input value: {inputValue}</p>
+    </div>
+  );
+}
+```
+
+### Nem kontrollált űrlapelemek
+
+A nem kontrollált komponensek esetén a form elemek értékét a DOM-ban tároljuk, és a React csak akkor fér hozzá ezekhez az értékekhez, amikor szükség van rá, például egy űrlap elküldésekor. Ez egyszerűbb lehet bizonyos esetekben, de kevesebb kontrollt biztosít a form elemek felett. Főbb elemei:
+- Az `input` elem alapértelmezett értékét a `defaultValue` attribútummal adhatjuk meg.
+- Az `input` elem DOM elemét a `ref` attribútum segítségével kötjük egy `useRef`-el létrehozott referenciához, hogy később hozzáférhessünk az értékéhez.
+- Az `onSubmit` eseménykezelő a referencián keresztül olvassa az `input` elem aktuális értékét, amikor a form elküldésre kerül.
+
+```tsx
+function Component() {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (inputRef.current) {
+      console.log("Input value:", inputRef.current.value);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" ref={inputRef} />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### Validáció
+
+Űrlapelemek validálásához használhatjuk a HTML5 beépített validációs mechanizmusait, például a `required`, `minLength`, `maxLength`, `pattern` attribútumokat, amelyek a form elemekre alkalmazhatók. Ezek az attribútumok automatikusan érvényesítik a form elemek értékét, és megakadályozzák a form elküldését, ha az érték nem felel meg a megadott feltételeknek.
+
+Ha nagyobb kontrollra van szükségünk, akkor a validációs logikát megvalósíthatjuk az eseménykezelőkben, például az `onChange` vagy `onSubmit` eseménykezelőben, ahol ellenőrizhetjük a form elemek értékét, és megjeleníthetünk hibaüzeneteket a felhasználónak. A hibaüzenetek megjelenítéséhez használhatunk egy állapotváltozót, amely tárolja a hibaüzenetet, és ezt megjeleníthetjük a JSX-ben.
+
+```tsx
+function Component() {
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
+
+    if (value.length < 5) {
+      setError("Input must be at least 5 characters long.");
+    } else {
+      setError("");
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" value={inputValue} onChange={handleChange} />
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+}
+```
+
+Ha több form elemet kell kezelni, akkor érdemes lehet egy objektumban tárolni a form állapotát, ahol a kulcsok a form elemek nevei, és az értékek a form elemek aktuális értékei. Ez megkönnyíti a form állapotának kezelését, különösen akkor, ha sok form elem van. Az eseménykezelőben dinamikus property neveket használhatunk, hogy frissítsük a megfelelő form elem értékét az állapotban. Az egyes hibaüzeneteket is egy objektumban tárolhatjuk, ahol a kulcsok a form elemek nevei, és az értékek a hibaüzenetek.
+
+```tsx
+function Component() {
+  const [formState, setFormState] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormState(prevState => ({ ...prevState, [name]: value }));
+
+    if (name === "username" && value.length < 5) {
+      setErrors(prevErrors => ({ ...prevErrors, username: "Username must be at least 5 characters long." }));
+    } else if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+      setErrors(prevErrors => ({ ...prevErrors, email: "Invalid email address." }));
+    } else if (name === "password" && value.length < 8) {
+      setErrors(prevErrors => ({ ...prevErrors, password: "Password must be at least 8 characters long." }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, [name]: "" }));
+    }
+  };
+
+  return (
+    <form>
+      <input type="text" name="username" value={formState.username} onChange={handleChange} />
+      {errors.username && <p style={{ color: "red" }}>{errors.username}</p>}
+      
+      <input type="email" name="email" value={formState.email} onChange={handleChange} />
+      {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+      
+      <input type="password" name="password" value={formState.password} onChange={handleChange} />
+      {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
+      
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### Validációs könyvtárak
+
+A validációs logika általánosítható, így érdemes lehet külön, erre szolgáló függvénykönyvtárakat használni, mint például a [Formik](https://formik.org/) vagy a [React Hook Form](https://react-hook-form.com/), amelyek megkönnyítik a formok kezelését és validálását Reactben.
+
+## Egyedi hookok
+
+Egy komponensben lévő state és logika sokszor olvashtatatlanná teheti a komponenst, különösen akkor, ha több állapotváltozó és mellékhatás van. Ilyenkor érdemes lehet ezeket egy egyedi hookokba helyezni. Az eredeti komponensből egyszerűen egy `use`-zal kezdődő függvénybe mozgatjuk át az adatokat és logikát, és visszatérünk a szükséges értékekkel és függvényekkel. A komponens innentől ezt az egyedi hookot használja, az abból kapott adatokkal és függvényekkel.
+
+Ha az eredeti komponensben például egy számláló van, akkor létrehozhatunk egy `useCounter` nevű egyedi hookot, amely kezeli a számláló állapotát és a hozzá tartozó műveleteket, mint például növelés, csökkentés és visszaállítás. Az eredeti komponens:
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+  const reset = () => setCount(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+}
+```
+
+Ekkor a számláló logikáját egy `useCounter` nevű egyedi hookba helyezhetjük át, és a komponens innentől ezt a hookot használja:
+
+```tsx
+// useCounter egyedi hook létrehozása
+function useCounter(initialValue: number = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+  const reset = () => setCount(initialValue);
+
+  return { count, increment, decrement, reset };
+}
+
+// Counter komponens használata a useCounter hookkal
+function Counter() {
+  const { count, increment, decrement, reset } = useCounter();
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+}
+```
+
+Egyedi hookokat nagyon gyakran egy logikai újrahasznosítására hoznak létre. Például egy offline állapotot kezelő hook, amely figyeli a hálózati kapcsolat állapotát, és visszaadja, hogy online vagy offline állapotban van-e a böngésző:
+
+```tsx
+function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  return isOnline;
+}
+```
+
+Ez a logika innentől kezdve több komponensben is újrahasznosítható. Fontos, hogy ebben az esetben a logika hasznosítódik újra, az adat nem. Azaz minden komponens, amely használja a `useOnlineStatus` hookot, saját állapotot fog létrehozni, és nem osztozik egy közös állapoton.
+
+```tsx
+function Component1() {
+  const isOnline = useOnlineStatus();
+  return <p>Component 1 is {isOnline ? "online" : "offline"}</p>;
+}
+
+function Component2() {
+  const isOnline = useOnlineStatus();
+  return <p>Component 2 is {isOnline ? "online" : "offline"}</p>;
+}
+```
+
+## Context
+
+### A Context alapjai
+
+A React Context egy olyan mechanizmus, amely lehetővé teszi, hogy adatokat osszunk meg a komponensfában anélkül, hogy props-okat kellene átadnunk minden szinten. Ez különösen hasznos olyan adatok esetén, amelyek sok komponens számára szükségesek, például a felhasználói hitelesítési állapot vagy a téma beállításai.
+
+Ilyenkor nem az történik, hogy felső szinten létrehozunk egy állapotot, és azt props-ként továbbadjuk minden szinten, hanem létrehozunk egy Context-et, amelynek van egy Provider komponense, amiben megadjuk a megosztani kívánt értékeket. Ezután a Context-et használó komponensek a `useContext` hook segítségével hozzáférhetnek ezekhez az értékekhez, anélkül hogy props-ként kellene átadni őket.
+
+```tsx
+// Context létrehozása
+const ThemeContext = React.createContext({ value: "system" });
+
+// ThemeContext megadása a komponensfában
+function App() {
+  const theme = { value: "dark" };
+  return (
+    <ThemeContext.Provider value={theme}>
+      <ChildComponent />
+    </ThemeContext.Provider>
+  );
+}
+
+// Context használata egy komponensben
+function ChildComponent() {
+  const theme = useContext(ThemeContext);
+  return (
+    <div>
+      <p>Current theme: {theme.value}</p>
+    </div>
+  );
+}
+```
+
+### Context szolgáltató komponens
+
+A Contextet szolgáltató komponenst gyakran csomagolják egyéni komponensbe, hogy megkönnyítsék a használatát és elrejtsék a belső működését a többi komponens elől. Ez a komponens általában egy Provider-t ad vissza, amelynek értékét a szükséges adatokkal látja el.
+
+```tsx
+// Context létrehozása
+const ThemeContext = React.createContext({ value: "system" });
+
+// ThemeProvider komponens létrehozása
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = { value: "dark" };
+  return (
+    <ThemeContext.Provider value={theme}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// ThemeProvider használata a komponensfában
+function App() {
+  return (
+    <ThemeProvider>
+      <ChildComponent />
+    </ThemeProvider>
+  );
+}
+```
+
+### Változó értékek a Context-ben
+
+A Context értéke bármi lehet, statikus vagy időben változó egyaránt. Egy Context tetszőleges bonyolultságú adatot és logikát képes szolgáltatni. Gyakran a szolgáltató komponensben előkészítik a megfelelő adatokat és feldolgozó függvényeket, és csak a szükséges értékeket adják át a Context-en keresztül a gyerek komponenseknek.
+
+```tsx
+// Context létrehozása
+interface ThemeContextValue {
+  theme: string;
+  toggleTheme: () => void;
+}
+const ThemeContext = React.createContext<ThemeContextValue | null>(null);
+
+// ThemeProvider komponens létrehozása
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState("system");
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// ThemeProvider használata a komponensfában
+function App() {
+  return (
+    <ThemeProvider>
+      <ChildComponent />
+    </ThemeProvider>
+  );
+}
+
+// Context használata egy komponensben
+function ChildComponent() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("ThemeContext must be used within a ThemeProvider");
+  }
+  const { theme, toggleTheme } = context;
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+}
+```
+
+### Egyedi hookok a Context használatához
+
+Sokszor a contextben lévő logikát egyedi hookba helyezik, hogy megkönnyítsék a használatát és elrejtsék a belső működését a többi komponens elől. A context használó komponensek is egyedi hookon keresztül férnek hozzá a context értékéhez, így a hibakezelés is központilag megoldható.
+
+```tsx
+// useTheme hook létrehozása
+function useTheme() {
+  const [theme, setTheme] = useState("system");
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
+  return [theme, toggleTheme];
+}
+
+// ThemeProvider komponens létrehozása
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, toggleTheme] = useTheme();
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+/////////////////////////////////////////////
+
+// useThemeContext hook létrehozása
+function useThemeContext() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useThemeContext must be used within a ThemeProvider");
+  }
+  return context;
+}
+
+// Context használata egy komponensben useThemeContext hookkal
+function ChildComponent() {
+  const { theme, toggleTheme } = useThemeContext();
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+}
+```
