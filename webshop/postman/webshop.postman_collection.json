@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "MiniShop API",
+    "_postman_id": "b5d2c2b2-1c7e-4f0c-8f45-3c1f6a4f8a1e",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Products - list",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["products"]
+        }
+      }
+    },
+    {
+      "name": "Products - by id",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/products/p1",
+          "host": ["{{baseUrl}}"],
+          "path": ["products", "p1"]
+        }
+      }
+    },
+    {
+      "name": "Products - create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Új termék\",\n  \"priceHuf\": 1234,\n  \"imageUrl\": \"https://picsum.photos/seed/new/800/600\",\n  \"description\": \"Egy új termék leírása.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["products"]
+        }
+      }
+    }
+  ]
+}
+
