@@ -1,4 +1,4 @@
-# MiniShop – 2x60 min practice (React + Zustand + TanStack Query + Fastify)
+# MiniShop – 2x60 min practice (React + Zustand + TanStack Query)
 
 A **tiny coffee-themed webshop** practice split into two lessons:
 
