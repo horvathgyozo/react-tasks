@@ -1,6 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom'
+// TODO (Lesson 1 – step 2): import useCartStore from './store/cart'
 
 export function RootLayout() {
+  // TODO (Lesson 1 – step 2): subscribe to the cart count
+  //   const qty = useCartStore((s) => s.cart.reduce((sum, i) => sum + i.qty, 0))
+  const qty = 0 // ← replace this with the line above once the store is created
+
   return (
     <div className="min-h-dvh bg-base-200 text-base-content" data-theme="coffee">
       <div className="navbar bg-base-100 shadow">
@@ -30,6 +35,8 @@ export function RootLayout() {
 
             <NavLink to="/cart" className="btn btn-primary">
               Cart
+              {/* TODO: show badge when qty > 0 */}
+              {qty > 0 && <span className="badge badge-sm">{qty}</span>}
             </NavLink>
           </div>
         </div>
@@ -41,4 +48,3 @@ export function RootLayout() {
     </div>
   )
 }
-

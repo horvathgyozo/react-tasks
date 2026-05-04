@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Product } from '../types'
-// TODO (Lesson 1): import useCartStore from '../store/cart'
+// TODO (Lesson 1 – step 1): import useCartStore from '../store/cart'
 
 export function ProductCard({
   product,
@@ -9,10 +9,10 @@ export function ProductCard({
   product: Product
   showActions?: boolean
 }) {
-  // TODO (Lesson 1): get add and dec actions from useCartStore
-  // TODO (Lesson 1): get the qty for this product from the cart
+  // TODO (Lesson 1 – step 2): get add and dec from useCartStore
+  // TODO (Lesson 1 – step 2): get the qty for this specific product
   //   const qty = useCartStore((s) => s.cart.find((i) => i.productId === product.id)?.qty ?? 0)
-  const qty = 0 // remove this line once the store is wired
+  const qty = 0 // ← replace this with the line above once the store is created
 
   return (
     <div className="card bg-base-100 shadow">
@@ -39,6 +39,7 @@ export function ProductCard({
               >
                 Details
               </Link>
+
               {qty > 0 ? (
                 <div className="flex items-center gap-1">
                   <button
