@@ -7,14 +7,14 @@ A **tiny coffee-themed webshop** practice split into two lessons:
 
 This folder contains:
 
-- `web/`, `api/`, `postman/`: **STARTER (task)**
+- `client/`, `server/` : **STARTER (task)**
 
 ## Run
 
 ### Frontend (starter)
 
 ```bash
-cd webshop/web
+cd webshop/client
 npm install
 npm run dev
 ```
@@ -30,50 +30,39 @@ npm run dev
 
 ### Step-by-step tasks (Lesson 1)
 
-#### 1) Build a cart store with Zustand
+Example of usage of zustand is already provided in the `client/src/store/products.ts` file. You can use it as a reference. It stores the products in a global state and provides actions to add a new product there.
 
-- **Goal**: “Add to cart” should actually change state and show up on the cart page.
-- **Recommended minimal cart shape**:
-  - `items: Array<{ productId: string; qty: number }>`
+
+#### 1) Create a new global state for the cart 
+
+- **Goal**: the cart should be saved in a global state and be accessible from all the pages.
+- **Recommended minimal state shape**:
+  - `cart: Array<{ productId: string; qty: number }>`
   - actions: `add(productId)`, `dec(productId)`, `remove(productId)`, `clear()`
 - **Rules**:
-  - `add` increases quantity (or creates item with qty=1)
-  - `dec` decreases quantity, remove the item if qty hits 0
-  - store only `productId` + `qty` (do not store full product objects)
+  - `add`: increases the quantity (or creates qty=1 if not exists)
+  - `dec`: decreases the quantity; if 0, remove the item
+  - only `productId` + `qty` should be stored in the store (do not store the full product object)
+  - create a new function to calculate the total price of the cart
+  - create a new function to calculate the total quantity of the cart
 - Docs:
-  - Zustand (getting started): https://zustand.docs.pmnd.rs/getting-started/introduction
-  - Persist middleware (optional extra): https://zustand.docs.pmnd.rs/middlewares/persist
+  - Zustand (getting started): https://zustand.docs.pmnd.rs/learn/getting-started/introduction
 
-**Checkpoint**: clicking “Add to cart” increases qty for that product.
+**Checkpoint**: clicking “Add to cart” increases qty for that product. Check this with console.log the state after the action.
 
-#### 2) Wire “Add to cart” in the UI
+#### 2) Wire the cart page in the UI from the global state
 
-- Product list/cards:
-  - “Add to cart” calls `add(productId)`
-  - optional: show `- qty +` controls when qty > 0
-- Product detail page:
-  - “Add to cart” adds one item
-- Docs:
-  - React Router `Link` and routing basics: https://reactrouter.com/en/main/start/tutorial
+- Cart page:
+  - display all the items in the cart
+  - display the total price of the cart
+  - display the total quantity of the cart
+  - display the total number of items in the cart
+- Menu bar:
+  - display the total number of items in the cart
 
-**Checkpoint**: add from list and from detail both work.
+**Checkpoint**: all the items are displayed in the cart page. Check this with console.log the state after the action. Also check if the total price and quantity are displayed correctly. Also check if the total number of items in the cart is displayed correctly in the menu bar.
 
-#### 3) Implement the cart page
-
-- Show a list/table with:
-  - product name
-  - qty
-  - price
-  - line total
-- Add actions:
-  - Clear cart
-  - Remove line
-  - optional: `- / +` qty controls
-- Compute and show cart total.
-
-**Checkpoint**: totals update correctly when quantities change.
-
-#### 4) Wire the “New product” form
+#### 3) Wire the “New product” form
 
 - **Goal**: after “Save”, the new product appears on the product list.
 - Implement form state:
@@ -87,15 +76,15 @@ npm run dev
   - price is a number and \(> 0\)
   - description min length (e.g. 10)
 - Docs:
-  - React forms: https://react.dev/reference/react-dom/components/input
-  - `FormData`: https://developer.mozilla.org/en-US/docs/Web/API/FormData
+  - Controlled forms: https://www.freecodecamp.org/news/what-are-controlled-and-uncontrolled-components-in-react/
 
-**Checkpoint**: save → go back to `/` → product list contains the new product.
+**Checkpoint**: save → go back to the main page → product list contains the new product.
 
 ### Extra (optional)
-
-- Persist the cart (localStorage with Zustand `persist`)
 - Add a small “toast” after add-to-cart / save
+
+
+
 
 ## Lesson 2 (60 min) – API + Auth + TanStack Query
 
@@ -104,22 +93,26 @@ npm run dev
 ### API (starter)
 
 ```bash
-cd webshop/api
+cd webshop/server
 npm install
 npm run dev
 ```
 
 ### Postman
 
-Import:
+You can import the collection and environment from Postman:
+https://www.postman.com/winter-equinox-382737/workspace/clientshop
 
-- `postman/webshop.postman_collection.json`
-- `postman/webshop.postman_environment.json`
+You can also import via the files in this folder:
+- `webshop.postman_collection.json`
+- `webshop.postman_environment.json`
 
 ### Goal
 
-- Replace mocks in `web/src/queries/products.ts` with real API calls
+- Add API calls to the products store
 - Add login (token) and protect “create product”
+- Optional: Wire in registration
+- Optional: Wire in update and delete
 
 ### Step-by-step tasks (Lesson 2)
 
@@ -147,14 +140,11 @@ Import:
   - TanStack Query (React): https://tanstack.com/query/latest/docs/framework/react/overview
   - Queries: https://tanstack.com/query/latest/docs/framework/react/guides/queries
   - Environment variables in Vite: https://vite.dev/guide/env-and-mode.html
-  - Fetch API: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 
 **Checkpoint**: product list and product detail work only when API is running.
 
 #### 2) Login (token) end-to-end
 
-- API:
-  - implement `POST /auth/login` that returns `{ token, user }`
 - Frontend:
   - login form calls the API
   - store `token` in Zustand (persisted)
@@ -171,8 +161,6 @@ Import:
 
 #### 3) Protect create product + send token
 
-- API:
-  - protect `POST /products` with JWT (`Authorization: Bearer <token>`)
 - Frontend:
   - protect `/new` with a route loader: if no token → redirect to `/login`
   - create product mutation (TanStack Query):
@@ -180,7 +168,7 @@ Import:
     - on success: invalidate `['products']` and redirect to `/`
 - Docs:
   - React Router loaders + redirects: https://reactrouter.com/en/main/route/loader
-  - HTTP `Authorization` header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
+  - HTTP `Authorization` header: https://developer.mozilla.org/en-US/docs/client/HTTP/Headers/Authorization
 
 **Checkpoint**: logged out → `/new` redirects to `/login`; logged in → create works.
 
@@ -188,10 +176,6 @@ Import:
 
 - Implement `POST /auth/register`
 - Register page stores token and logs in immediately after successful registration
-
-
-## Extra tasks (after the lessons)
-
 - **(H) Finish Register (starter)**: implement real registration via API (store token), then update navbar.
 - **(I) Full CRUD when logged in**:
   - API: add `PUT /products/:id` and `DELETE /products/:id` (JWT protected)

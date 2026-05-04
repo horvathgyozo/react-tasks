@@ -1,4 +1,3 @@
-import { useId } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
 import type { Product } from '../types'
@@ -6,15 +5,22 @@ import type { Product } from '../types'
 const placeholderImageUrl =
   'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80'
 
-export function NewProductPage() {
-  const formId = useId()
-
+  
   const previewProduct: Product = {
     id: 'preview',
     name: 'New coffee',
     priceHuf: 0,
     imageUrl: placeholderImageUrl,
     description: 'Short coffee description…',
+  }
+
+export function NewProductPage() {
+
+
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    console.log('TODO: implement controlled inputs (Lesson 1)')
   }
 
   return (
@@ -46,12 +52,8 @@ export function NewProductPage() {
             <div className="divider my-2" />
 
             <form
-              id={formId}
               className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-              onSubmit={(e) => {
-                e.preventDefault()
-                console.log('TODO: implement controlled inputs (Lesson 1)')
-              }}
+              onSubmit={handleSubmit}
             >
               <label className="form-control">
                 <div className="label">

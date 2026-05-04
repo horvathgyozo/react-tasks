@@ -1,6 +1,26 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 
 export function LoginPage() {
+  // STATE - This state is used to store the form data
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+  })
+
+  // HELPER FUNCTIONS - This functions sync the form state with the input values
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  // HANDLER FUNCTIONS - This functions are called when the form is submitted or the input values change
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    // TODO: implement the login logic
+    console.log(form)
+  }
+
   return (
     <div className="mx-auto max-w-4xl">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
@@ -38,12 +58,10 @@ export function LoginPage() {
 
             <div className="divider my-2" />
 
+            {/* FORM - This form is used to login the user */}
             <form
               className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-              onSubmit={(e) => {
-                e.preventDefault()
-                console.log('TODO: implement controlled inputs (Lesson 2)')
-              }}
+              onSubmit={handleSubmit}
             >
               <label className="form-control sm:col-span-2">
                 <div className="label">
@@ -54,6 +72,8 @@ export function LoginPage() {
                   name="email"
                   autoComplete="email"
                   required
+                  value={form.email}
+                  onChange={handleChange}
                 />
               </label>
 
@@ -61,12 +81,15 @@ export function LoginPage() {
                 <div className="label">
                   <span className="label-text">Password</span>
                 </div>
+                
                 <input
                   className="input input-bordered w-full"
                   type="password"
                   name="password"
                   autoComplete="current-password"
                   required
+                  value={form.password}
+                  onChange={handleChange}
                 />
               </label>
 

@@ -15,7 +15,23 @@ export function CartPage() {
 
       <div className="rounded-box bg-base-100 p-6 shadow">
         <p className="opacity-70">
-          TODO (Lesson 1): show the cart contents from Zustand.
+         TODO (Lesson 1): show the cart contents from Zustand.
+
+         {/* Example: display the first cart item with image */}
+         <div className="flex items-center justify-between">
+           <div className="flex items-center gap-3">
+             <img
+               src="https://via.placeholder.com/40"
+               alt="Example Item Name"
+               className="w-10 h-10 rounded"
+             />
+             <span>Example Item Name</span>
+           </div>
+           <span className="font-semibold">$9.99</span>
+           <span>Qty: 1</span>
+         </div>
+   
+    
         </p>
       </div>
     </div>
