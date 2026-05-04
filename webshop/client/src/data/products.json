@@ -1,0 +1,39 @@
+[
+  {
+    "id": "c1",
+    "name": "Espresso",
+    "priceHuf": 890,
+    "imageUrl": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=1200&q=80",
+    "description": "Short and intense. Classic espresso shot.",
+    "origin": "Brazil",
+    "preparation": "18g dose • 9 bar • 25–30s • ~30ml.\nPreheat the cup and watch for an even flow."
+  },
+  {
+    "id": "c2",
+    "name": "Cappuccino",
+    "priceHuf": 1290,
+    "imageUrl": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80",
+    "description": "Espresso with steamed milk and a silky foam cap.",
+    "origin": "Colombia",
+    "preparation": "1 espresso • 120–150ml steamed milk • 1–2cm microfoam.\nAim for a glossy, velvety texture."
+  },
+  {
+    "id": "c3",
+    "name": "Caffè Latte",
+    "priceHuf": 1390,
+    "imageUrl": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=1200&q=80",
+    "description": "Smooth, milk-forward coffee with a gentle espresso base.",
+    "origin": "Ethiopia",
+    "preparation": "1 espresso • 200–250ml steamed milk.\nKeep the foam thin and creamy."
+  },
+  {
+    "id": "c4",
+    "name": "Americano",
+    "priceHuf": 1090,
+    "imageUrl": "https://images.unsplash.com/photo-1521302080334-4bebac2763a6?auto=format&fit=crop&w=1200&q=80",
+    "description": "Espresso topped with hot water for a clean, aromatic cup.",
+    "origin": "Guatemala",
+    "preparation": "120–180ml hot water + 1–2 espresso shots.\nWater first, espresso second for better crema."
+  }
+]
+
